@@ -23,7 +23,6 @@ def home():
 @app.post("/test_msg")
 async def msg_post(request: Request):
     data = await request.form()
-    print(data)
     name = data.get("ProfileName")
     if TESTER_CELLPHONE_NUMBER != None:
         message = twilio_client.messages.create(
