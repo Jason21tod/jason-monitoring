@@ -5,7 +5,7 @@ import os
 
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
-TESTER_CELLPHONE_NUMBER = os.environ.get("TESTER_CELPHONE_NUMBER")
+TESTER_CELLPHONE_NUMBER = os.environ.get("TESTER_CELLPHONE_NUMBER")
 
 if TWILIO_ACCOUNT_SID == None or TWILIO_AUTH_TOKEN == None or TESTER_CELLPHONE_NUMBER == None:
     raise Exception("Error, some of your env var are None, fix and try again")
