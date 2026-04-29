@@ -1,34 +1,36 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from twilio.rest import Client
-from pydantic import BaseModel
 import os
 
 
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SSID")
+TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TESTER_CELLPHONE_NUMBER = os.environ.get("TESTER_CELPHONE_NUMBER")
 
+if TWILIO_ACCOUNT_SID == None or TWILIO_AUTH_TOKEN == None or TESTER_CELLPHONE_NUMBER == None:
+    raise Exception("Error, some of your env var are None, fix and try again")
 
 twilio_client: Client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 app = FastAPI()
 
 
-class Item(BaseModel):
-    pass
-
 @app.get("/")
 def home():
     return {"hello":"world!"}
 
 
-@app.post("/msg")
-def msg_post():
+@app.post("/test_msg")
+async def msg_post(request: Request):
+    data = await request.form()
+    print(data)
+    name = data.get("ProfileName")
     if TESTER_CELLPHONE_NUMBER != None:
         message = twilio_client.messages.create(
                 from_='whatsapp:+14155238886',
-                body= "Bem vindo ao teste testado testando nos testes",
+                body= f"Bem vindo(a) {name} ao teste testado testando nos testes",
                 to=TESTER_CELLPHONE_NUMBER
             )
         return {"status": 200}
+    print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NULL")
     return {"status": 400}
