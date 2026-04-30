@@ -1,16 +1,6 @@
 from fastapi import FastAPI, Request
-from twilio.rest import Client
-import os
+from whatsapp_sys import send_test_message
 
-
-TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
-TESTER_CELLPHONE_NUMBER = os.environ.get("TESTER_CELLPHONE_NUMBER")
-
-if TWILIO_ACCOUNT_SID == None or TWILIO_AUTH_TOKEN == None or TESTER_CELLPHONE_NUMBER == None:
-    raise Exception("Error, some of your env var are None, fix and try again")
-
-twilio_client: Client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 app = FastAPI()
 
@@ -20,16 +10,12 @@ def home():
     return {"hello":"world!"}
 
 
+
 @app.post("/test_msg")
 async def msg_post(request: Request):
     data = await request.form()
     name = data.get("ProfileName")
-    if TESTER_CELLPHONE_NUMBER != None:
-        message = twilio_client.messages.create(
-                from_='whatsapp:+14155238886',
-                body= f"Bem vindo(a) {name} ao teste testado testando nos testes",
-                to=TESTER_CELLPHONE_NUMBER
-            )
+    if (type(name)) ==  str:
+        send_test_message(name)
         return {"status": 200}
-    print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NULL")
     return {"status": 400}
