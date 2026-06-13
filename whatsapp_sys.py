@@ -19,11 +19,13 @@ class MessageReceiver(ABC):
         pass
 
 
-def send_test_message(name: str):
-    if TESTER_CELLPHONE_NUMBER != None:
+def send_test_message(name: str, customer_number: str):
+    if customer_number != "None":
         message = twilio_client.messages.create(
                 from_='whatsapp:+14155238886',
                 body= f"Bem vindo(a) {name} ao teste testado testando nos testes",
-                to=TESTER_CELLPHONE_NUMBER
+                to= customer_number
             )
+        return "200"
     print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
+    return "400"
