@@ -15,7 +15,7 @@ twilio_client: Client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 class MessageReceiver(ABC):
     @abstractmethod
-    def receive_message(self):
+    def receive_message(self, msg):
         pass
 
 
@@ -29,3 +29,8 @@ def send_test_message(name: str, customer_number: str):
         return "200"
     print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
     return "400"
+
+
+class ComplimentREceiver(MessageReceiver):
+    def receive_message(self, msg):
+        return super().receive_message(msg)
