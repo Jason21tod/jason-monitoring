@@ -1,5 +1,5 @@
 from twilio.rest import Client
-from abc import ABC, abstractmethod
+from api import MsgObject
 import os
 
 
@@ -13,12 +13,6 @@ if TWILIO_ACCOUNT_SID == None or TWILIO_AUTH_TOKEN == None or TESTER_CELLPHONE_N
 twilio_client: Client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 
-class MessageReceiver(ABC):
-    @abstractmethod
-    def receive_message(self, msg):
-        pass
-
-
 def send_test_message(name: str, customer_number: str):
     if customer_number != "None":
         message = twilio_client.messages.create(
@@ -30,7 +24,13 @@ def send_test_message(name: str, customer_number: str):
     print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
     return "400"
 
-
-class ComplimentREceiver(MessageReceiver):
-    def receive_message(self, msg):
-        return super().receive_message(msg)
+def send_message(msg_object: MsgObject):
+    if msg_object._from != "None":
+        message = twilio_client.messages.create(
+                from_=msg_object.to,
+                body= msg_object.body,
+                to= msg_object._from
+            )
+        return "200"
+    print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
+    return "400"
