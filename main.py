@@ -1,8 +1,8 @@
-from fastapi import FastAPI, Request, logger
+from fastapi import FastAPI, Request, logger, Depends
 from api import MsgObject, MsgData
 from whatsapp_sys import send_test_message, send_message
 from msg_handlers import ComplimentHandler
-
+from api_authentication import AuthenticationVerifier
 
 app = FastAPI(title="Jason Monitoring System")
 
@@ -11,9 +11,8 @@ app = FastAPI(title="Jason Monitoring System")
 def home():
     return {"hello":"world!"}
 
-
 @app.post("/msg")
-async def msg(request: Request):
+async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verifySID)):
     try:
         data = await request.form()
     except:

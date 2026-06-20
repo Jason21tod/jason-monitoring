@@ -24,7 +24,6 @@ class ComplimentHandler(MsgHandler):
                 pass
         return False
 
-
     def formatBody(self, body: str):
         space_index = body.find(" ")
         if self.isShortMessage(space_index):
