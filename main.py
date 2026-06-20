@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, logger
 from api import MsgObject, MsgData
 from whatsapp_sys import send_test_message, send_message
-from msg_handlers import FirstReceiver
+from msg_handlers import ComplimentHandler
 
 
 app = FastAPI(title="Jason Monitoring System")
@@ -19,28 +19,30 @@ async def msg(request: Request):
     except:
         logger.logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
         return 400
-    received_data = MsgData(
+    response_msg_object = create_response(data)
+    return send_message(msg_object=response_msg_object)
+
+def create_response(data):
+    receiver = ComplimentHandler()
+    received_message = MsgData(
             str(data.get("ProfileName")),
             str(data.get("To")),
             str(data.get("Body")),
             str(data.get("From")),
             str(data.get("SmsStatus"))
         )
-    new_msg_object = MsgObject(received_data)
-    receiver = FirstReceiver()
-    message_body = receiver.receive_message(new_msg_object)
-    sent_data = MsgData (
+    new_received_msg = MsgObject(received_message)
+
+    message_body = receiver.receive_message(new_received_msg)
+    response_msg_data = MsgData (
             str(data.get("ProfileName")),
             str(data.get("To")),
             str(message_body),
             str(data.get("From")),
             str(data.get("SmsStatus"))
         )
-    response_msg_object = MsgObject(sent_data)
-    print(response_msg_object.body)
-    return send_message(msg_object=response_msg_object)
-
-
+    
+    return MsgObject(response_msg_data)
 
 @app.post("/test_msg")
 async def test_msg(request: Request):

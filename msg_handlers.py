@@ -1,6 +1,8 @@
 from api import MsgHandler, MsgObject
 
-class FirstReceiver(MsgHandler):
+
+
+class ComplimentHandler(MsgHandler):
     msg_handlers: list[MsgHandler]= []
     __compliment_list = ["oi", "olá", "hello"]
     _msg = ""
@@ -21,7 +23,7 @@ class FirstReceiver(MsgHandler):
             else:
                 pass
         return False
-    
+
 
     def formatBody(self, body: str):
         space_index = body.find(" ")
@@ -30,7 +32,6 @@ class FirstReceiver(MsgHandler):
         else:
             return body[0:space_index]
         
-
     def isShortMessage(self, space_index: int):
         if space_index == -1:
             return True

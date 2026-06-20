@@ -31,6 +31,7 @@ def send_message(msg_object: MsgObject):
                 body= msg_object.body,
                 to= msg_object._from
             )
+        print(message.status)
         return "200"
     print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
     return "400"
