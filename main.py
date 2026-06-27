@@ -3,6 +3,9 @@ from api import MsgObject, MsgData
 from whatsapp_sys import send_test_message, send_message
 from msg_handlers import ComplimentHandler
 from api_authentication import AuthenticationVerifier
+from database import engine, KidsTable, Session
+from uuid import uuid4
+
 
 app = FastAPI(title="Jason Monitoring System")
 
@@ -10,6 +13,18 @@ app = FastAPI(title="Jason Monitoring System")
 @app.get("/")
 def home():
     return {"hello":"world!"}
+
+@app.get("/add_test")
+def add():
+    uuid = uuid4()
+
+    kid = KidsTable(id=uuid, name="test")
+    
+    with Session(engine) as session:
+        session.add(kid)
+        session.commit()
+
+    return 200
 
 @app.post("/msg")
 async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verifySID)):
@@ -22,7 +37,7 @@ async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verifySI
     return send_message(msg_object=response_msg_object)
 
 def create_response(data):
-    receiver = ComplimentHandler()
+    first_receiver = ComplimentHandler()
     received_message = MsgData(
             str(data.get("ProfileName")),
             str(data.get("To")),
@@ -32,7 +47,7 @@ def create_response(data):
         )
     new_received_msg = MsgObject(received_message)
 
-    message_body = receiver.receive_message(new_received_msg)
+    message_body = first_receiver.receive_message(new_received_msg)
     response_msg_data = MsgData (
             str(data.get("ProfileName")),
             str(data.get("To")),
