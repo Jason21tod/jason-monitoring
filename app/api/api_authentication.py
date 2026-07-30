@@ -10,15 +10,16 @@ TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 class AuthenticationVerifier:
 
     @classmethod
-    async def verifySID(cls, request: Request):
+    async def verify_twilio_credentials(cls, request: Request):
+        """Method used to verify the SID from"""
         form_data = await request.form()
         account_sid =  form_data.get("AccountSid")
-        twilio_signature = request.headers.get("X-Twilio-Signature")
 
-        cls.verify_sid(account_sid)
+        cls.verify_account_sid(account_sid)
+        twilio_signature = request.headers.get("X-Twilio-Signature")
         cls.has_twilio_signature(twilio_signature)
         cls.is_correct_signature(request, form_data, twilio_signature)
-        
+
     @classmethod
     def has_twilio_signature(cls, twilio_signature):
         if not twilio_signature:
@@ -42,7 +43,7 @@ class AuthenticationVerifier:
     
 
     @classmethod
-    def verify_sid(cls, account_sid):
+    def verify_account_sid(cls, account_sid):
         if account_sid != TWILIO_ACCOUNT_SID:
-            raise HTTPException(401, "Invalid Authentication Data")
+            raise HTTPException(401, "Invalid SID Data")
             

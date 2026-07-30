@@ -1,11 +1,20 @@
 from twilio.rest import Client
-from api import MsgObject
+from app.api.api import MsgObject
 import os
-
+import logging
 
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 TESTER_CELLPHONE_NUMBER = os.environ.get("TESTER_CELLPHONE_NUMBER")
+
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=" %(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+whatsapp_logger = logging.getLogger("Cleyton (Whatsapp Watcher)")
 
 if TWILIO_ACCOUNT_SID == None or TWILIO_AUTH_TOKEN == None or TESTER_CELLPHONE_NUMBER == None:
     raise Exception("Error, some of your Twilio env var are None, fix and try again")
@@ -21,7 +30,7 @@ def send_test_message(name: str, customer_number: str):
                 to= customer_number
             )
         return "200"
-    print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
+    whatsapp_logger.warning("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
     return "400"
 
 def send_message(msg_object: MsgObject):
@@ -31,7 +40,7 @@ def send_message(msg_object: MsgObject):
                 body= msg_object.body,
                 to= msg_object._from
             )
-        print(message.status)
+        whatsapp_logger.info(message.status)
         return "200"
-    print("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
+    whatsapp_logger.warning("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
     return "400"

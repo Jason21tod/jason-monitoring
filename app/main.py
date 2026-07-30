@@ -1,10 +1,15 @@
+import datetime
+
 from fastapi import FastAPI, Request, logger, Depends
-from api import MsgObject, MsgData
-from whatsapp_sys import send_test_message, send_message
-from msg_handlers import ComplimentHandler
-from api_authentication import AuthenticationVerifier
-from database import engine, KidsTable, Session
+from fastapi.responses import RedirectResponse
+from sqlmodel import Session
 from uuid import uuid4
+
+from .api.api import MsgObject, MsgData
+from .whatsapp.whatsapp_sys import send_test_message, send_message
+from .whatsapp.msg_handlers import ComplimentHandler
+from .api.api_authentication import AuthenticationVerifier
+from .database.database import engine, KidsTable
 
 
 app = FastAPI(title="Jason Monitoring System")
@@ -14,11 +19,40 @@ app = FastAPI(title="Jason Monitoring System")
 def home():
     return {"hello":"world!"}
 
+@app.post("/add_kids")
+async def add_kids_to_db(request: Request):
+    uuid = uuid4()
+    form = await request.form()
+    kid = KidsTable(
+        id = uuid,
+        name= form.get("name"),
+        checkin= form.get("checkin"),
+        checkout= form.get("checkout"),
+        can_pay= bool(form.get("can_pay")),
+        can_swin= bool(form.get("can_swin")),
+        notations= str(form.get("notations"))
+    )
+
+    with Session(engine) as session:
+        session.add(kid)
+        session.commit()
+
+# Change the way that url are made after that prototype
+    return RedirectResponse(url="http://127.0.0.1:5500/portfolio/jason-monitoring-demo.html", status_code= 307)
+
 @app.get("/add_test")
 def add():
     uuid = uuid4()
 
-    kid = KidsTable(id=uuid, name="test")
+    kid = KidsTable(
+            id=uuid,
+            name="test",
+            checkin=datetime.datetime.now(),
+            checkout= datetime.datetime.now(),
+            can_pay=True,
+            can_swin=True,
+            notations=""
+        )
     
     with Session(engine) as session:
         session.add(kid)
@@ -27,7 +61,7 @@ def add():
     return 200
 
 @app.post("/msg")
-async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verifySID)):
+async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_account_sid)):
     try:
         data = await request.form()
     except:
