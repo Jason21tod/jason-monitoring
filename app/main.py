@@ -38,7 +38,7 @@ async def add_kids_to_db(request: Request):
         session.commit()
 
 # Change the way that url are made after that prototype
-    return RedirectResponse(url="http://127.0.0.1:5500/portfolio/jason-monitoring-demo.html", status_code= 307)
+    return RedirectResponse(url="https://www.jasonuniverse.com.br/jason-monitoring-demo.html", status_code= 307)
 
 @app.get("/add_test")
 def add():
