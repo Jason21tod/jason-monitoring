@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from fastapi import FastAPI, Request, logger, Depends
 from fastapi.responses import RedirectResponse
@@ -14,6 +15,13 @@ from .database.database import engine, KidsTable
 
 app = FastAPI(title="Jason Monitoring System")
 
+logging.basicConfig(
+    level=logging.INFO,
+    format=" %(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+main_logger = logging.getLogger("Maid (Main Logger)")
+
 
 @app.get("/")
 def home():
@@ -21,6 +29,7 @@ def home():
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
+    main_logger.info("Added new kid...")
     uuid = uuid4()
     form = await request.form()
     kid = KidsTable(
@@ -37,7 +46,8 @@ async def add_kids_to_db(request: Request):
         session.add(kid)
         session.commit()
 
-# Change the way that url are made after that prototype
+    # Change the way that url are made after that prototype
+    main_logger.info("Added New Kid!")
     return RedirectResponse(url="https://www.jasonuniverse.com.br/jason-monitoring-demo.html", status_code= 307)
 
 @app.get("/add_test")
@@ -65,9 +75,10 @@ async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_a
     try:
         data = await request.form()
     except:
-        logger.logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
+        main_logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
         return 400
     response_msg_object = create_response(data)
+    main_logger.debug("message responsed!")
     return send_message(msg_object=response_msg_object)
 
 def create_response(data):
