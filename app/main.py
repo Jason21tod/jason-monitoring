@@ -4,14 +4,14 @@ import logging
 from fastapi import FastAPI, Request, logger, Depends
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session
-from uuid import uuid4
+
 
 from .api.api import MsgObject, MsgData
 from .whatsapp.whatsapp_sys import send_test_message, send_message
 from .whatsapp.msg_handlers import ComplimentHandler
 from .api.api_authentication import AuthenticationVerifier
-from .database.database import engine, KidsTable
-
+from .database.database import engine
+from .utils import make_a_kids_table_object, make_mock_kids_table_object
 
 app = FastAPI(title="Jason Monitoring System")
 
@@ -30,17 +30,8 @@ def home():
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
     main_logger.info("Added new kid...")
-    uuid = uuid4()
     form = await request.form()
-    kid = KidsTable(
-        id = uuid,
-        name= form.get("name"),
-        checkin= form.get("checkin"),
-        checkout= form.get("checkout"),
-        can_pay= bool(form.get("can_pay")),
-        can_swin= bool(form.get("can_swin")),
-        notations= str(form.get("notations"))
-    )
+    kid = make_a_kids_table_object(form)
 
     with Session(engine) as session:
         session.add(kid)
@@ -52,19 +43,8 @@ async def add_kids_to_db(request: Request):
 
 @app.get("/add_test")
 def add():
-    uuid = uuid4()
-
-    kid = KidsTable(
-            id=uuid,
-            name="test",
-            checkin=datetime.datetime.now(),
-            checkout= datetime.datetime.now(),
-            can_pay=True,
-            can_swin=True,
-            notations=""
-        )
-    
     with Session(engine) as session:
+        kid = make_mock_kids_table_object()
         session.add(kid)
         session.commit()
 
