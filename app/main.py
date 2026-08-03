@@ -71,14 +71,15 @@ def add():
     return 200
 
 @app.post("/msg")
-async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_account_sid)):
+async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_twilio_credentials)):
+    main_logger.info("new message received")
     try:
         data = await request.form()
     except:
         main_logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
         return 400
     response_msg_object = create_response(data)
-    main_logger.debug("message responsed!")
+    main_logger.info("message responsed!")
     return send_message(msg_object=response_msg_object)
 
 def create_response(data):

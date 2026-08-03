@@ -41,6 +41,6 @@ def send_message(msg_object: MsgObject):
                 to= msg_object._from
             )
         whatsapp_logger.info(message.status)
-        return "200"
+        return 200
     whatsapp_logger.warning("ERROR -> COULD NOT SEND MESSAGE! THE TARGET IS NONE")
-    return "400"
+    return 400

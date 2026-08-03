@@ -8,10 +8,8 @@ TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 
 
 class AuthenticationVerifier:
-
     @classmethod
     async def verify_twilio_credentials(cls, request: Request):
-        """Method used to verify the SID from"""
         form_data = await request.form()
         account_sid =  form_data.get("AccountSid")
 
@@ -22,6 +20,7 @@ class AuthenticationVerifier:
 
     @classmethod
     def has_twilio_signature(cls, twilio_signature):
+        print("verifying_if_has_signature...")
         if not twilio_signature:
             raise HTTPException(
                 status_code=403,

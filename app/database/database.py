@@ -13,7 +13,7 @@ logging.basicConfig(
 
 database_logger = logging.getLogger("james_bond (database watcher)")
 
-DB_URL = str(os.environ.get("DATABASE_URL"))
+DB_URL = str(os.environ.get("jason_monitoring_sb_url"))
 
 class KidsTable(SQLModel, table=True):
     id: uuid.UUID = Field(default=None, primary_key=True)
@@ -24,8 +24,9 @@ class KidsTable(SQLModel, table=True):
     can_swin: bool
     can_pay: bool
 
+
+engine = create_engine(DB_URL, echo=True)
 try:
-    engine = create_engine(DB_URL, echo=True)
     SQLModel.metadata.create_all(engine)
 except:
     database_logger.warning("Error on creating tables")
