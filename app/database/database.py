@@ -13,7 +13,7 @@ logging.basicConfig(
 
 database_logger = logging.getLogger("james_bond (database watcher)")
 
-DB_URL = str(os.environ.get("jason_monitoring_sb_url"))
+DB_URL = str(os.environ.get("DATABASE_URL"))
 
 class KidsTable(SQLModel, table=True):
     id: uuid.UUID = Field(default=None, primary_key=True)
