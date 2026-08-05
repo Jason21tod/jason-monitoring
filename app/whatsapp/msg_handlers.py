@@ -1,4 +1,4 @@
-from app.api.api import MsgHandler, MsgObject
+from app.api.msg import MsgHandler, MsgObject
 
 
 

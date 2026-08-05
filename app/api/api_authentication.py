@@ -1,25 +1,26 @@
 import os
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Header
 from twilio.request_validator import RequestValidator
 
 
+SECRET = os.environ.get("JASON_API_TOKEN")
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
 
 
-class AuthenticationVerifier:
+class TwilioAuthenticator:
     @classmethod
-    async def verify_twilio_credentials(cls, request: Request):
+    async def verify_credentials(cls, request: Request):
         form_data = await request.form()
         account_sid =  form_data.get("AccountSid")
 
         cls.verify_account_sid(account_sid)
         twilio_signature = request.headers.get("X-Twilio-Signature")
-        cls.has_twilio_signature(twilio_signature)
+        cls.has_signature(twilio_signature)
         cls.is_correct_signature(request, form_data, twilio_signature)
 
     @classmethod
-    def has_twilio_signature(cls, twilio_signature):
+    def has_signature(cls, twilio_signature):
         print("verifying_if_has_signature...")
         if not twilio_signature:
             raise HTTPException(
@@ -45,4 +46,13 @@ class AuthenticationVerifier:
     def verify_account_sid(cls, account_sid):
         if account_sid != TWILIO_ACCOUNT_SID:
             raise HTTPException(401, "Invalid SID Data")
-            
+
+
+class DatabaseGateKeeper:
+    @classmethod
+    async def verify_secret(cls, request: Request):
+        auth = request.headers.get("Authorization")
+        if auth == None:
+            raise HTTPException(401, "No authorization")
+        if auth != SECRET:
+            raise HTTPException(401, "Wrong Secret")

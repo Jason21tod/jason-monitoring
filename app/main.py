@@ -1,15 +1,15 @@
-import datetime
 import logging
 
-from fastapi import FastAPI, Request, logger, Depends
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session
+from starlette.datastructures import FormData
 
 
-from .api.api import MsgObject, MsgData
+from .api.msg import MsgObject, MsgData
 from .whatsapp.whatsapp_sys import send_test_message, send_message
 from .whatsapp.msg_handlers import ComplimentHandler
-from .api.api_authentication import AuthenticationVerifier
+from .api.api_authentication import TwilioAuthenticator, DatabaseGateKeeper
 from .database.database import engine
 from .utils import make_a_kids_table_object, make_mock_kids_table_object
 
@@ -26,6 +26,13 @@ main_logger = logging.getLogger("Maid (Main Logger)")
 @app.get("/")
 def home():
     return {"hello":"world!"}
+
+@app.get("/get_kids")
+async def get_kids(
+        _: None = Depends(DatabaseGateKeeper.verify_secret)
+    ):
+    
+    return {"status": "Done"}
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
@@ -51,7 +58,7 @@ def add():
     return 200
 
 @app.post("/msg")
-async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_twilio_credentials)):
+async def msg(request: Request, _:None = Depends(TwilioAuthenticator.verify_credentials)):
     main_logger.info("new message received")
     try:
         data = await request.form()
@@ -62,27 +69,31 @@ async def msg(request: Request, _:None = Depends(AuthenticationVerifier.verify_t
     main_logger.info("message responsed!")
     return send_message(msg_object=response_msg_object)
 
-def create_response(data):
-    first_receiver = ComplimentHandler()
-    received_message = MsgData(
+def create_response(data: FormData):
+    received_message = make_msg_data(data)
+    response_msg_data = make_response_msg_by_received_msg(data, received_message)
+    return MsgObject(response_msg_data)
+
+def make_msg_data(data: FormData):
+    return MsgData(
             str(data.get("ProfileName")),
             str(data.get("To")),
             str(data.get("Body")),
             str(data.get("From")),
             str(data.get("SmsStatus"))
         )
-    new_received_msg = MsgObject(received_message)
 
+def make_response_msg_by_received_msg(data: FormData, received_message: MsgData):
+    first_receiver = ComplimentHandler()
+    new_received_msg = MsgObject(received_message)
     message_body = first_receiver.receive_message(new_received_msg)
-    response_msg_data = MsgData (
+    return MsgData (
             str(data.get("ProfileName")),
             str(data.get("To")),
             str(message_body),
             str(data.get("From")),
             str(data.get("SmsStatus"))
         )
-    
-    return MsgObject(response_msg_data)
 
 @app.post("/test_msg")
 async def test_msg(request: Request):
