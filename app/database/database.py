@@ -2,7 +2,7 @@ import uuid
 import logging
 import os
 from datetime import datetime
-from sqlmodel import Field, SQLModel, create_engine
+from sqlmodel import Field, SQLModel, create_engine, Session, select
 
 
 logging.basicConfig(
@@ -18,6 +18,8 @@ DB_URL = str(os.environ.get("DATABASE_URL"))
 class KidsTable(SQLModel, table=True):
     id: uuid.UUID = Field(default=None, primary_key=True)
     name: str
+    parent: str
+    room: int
     checkin: datetime
     checkout: datetime
     notations: str
@@ -30,3 +32,4 @@ try:
     SQLModel.metadata.create_all(engine)
 except:
     database_logger.warning("Error on creating tables")
+

@@ -36,7 +36,6 @@ class MsgHandler(ABC):
     def receive_message(self, msg: MsgObject):
         pass
     
-    @abstractmethod
     def pass_to_next(self, msg: MsgObject):
         if len(self.msg_handlers) == 0:
             print("Could not send a message -> Unknow command or content")
