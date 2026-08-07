@@ -22,8 +22,12 @@ class MsgObject:
 
 class MsgHandler(ABC):
 
-    msg_handlers: list
+    msg_handlers: list = []
     _msg = "This is a Placeholder msg - should be configured"
+    _handler_name = "Abstract Handler name"
+    _help_message = "This is a Help message and should be configured"
+    _not_processed_msg = "Então... Não entendi oque quiz dizer, perdão!"
+    _brief_desc = "Uma descrição breve..."
 
     @abstractmethod
     def verify_gatling(self, body: str):
@@ -35,11 +39,15 @@ class MsgHandler(ABC):
     @abstractmethod
     def receive_message(self, msg: MsgObject):
         pass
+
+    @abstractmethod
+    def format_msg(self):
+        pass
     
     def pass_to_next(self, msg: MsgObject):
         if len(self.msg_handlers) == 0:
             print("Could not send a message -> Unknow command or content")
-            return "Então... Não entendi oque quiz dizer, perdão!"
+            return self._not_processed_msg
         else:
             for handler in self.msg_handlers:
                 return handler.receive_message(msg)
