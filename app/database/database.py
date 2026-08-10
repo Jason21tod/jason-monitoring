@@ -33,3 +33,8 @@ try:
 except:
     database_logger.warning("Error on creating tables")
 
+
+def get_kids(session: Session):
+    statement = select(KidsTable)
+    return session.exec(statement)
+

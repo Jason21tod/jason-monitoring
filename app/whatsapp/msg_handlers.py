@@ -1,5 +1,5 @@
 from app.api.msg import MsgHandler, MsgObject
-from app.database.database import Session, select, KidsTable, engine
+from app.database.database import Session, engine, get_kids
 
 
     
@@ -24,11 +24,8 @@ class GetAllKidsVerifier(MsgHandler):
 
     def format_msg(self):
         with Session(engine) as session:
-            statement = select(KidsTable)
-            kids = session.exec(statement)
-            
             msg = """Lista de todas as crianças \n\n"""
-            
+            kids = get_kids(session)    
             for kid in kids:
                 msg = msg + f"{kid.name} - {kid.room} - {kid.parent}\n"
             self.set_msg(msg)
@@ -47,21 +44,35 @@ class HelpVerifier(MsgHandler):
     def receive_message(self, msg: MsgObject):
         if self.verify_gatling(msg.body.lower()):
             print("A help message received!")
-            print(self.find_msg_after_help(msg.body.lower()))
-            formated_msg = self.format_msg(msg.body.lower())
-            if formated_msg == self._handler_name:
-                print("...general help message")
-                self.make_general_help_message()
-                self.set_msg(self._help_message)
-            else:
-                print("...not general help message")
-                for handler in self.msg_handlers:
-                    if formated_msg == handler._handler_name:
-                        print(f"{handler._handler_name}... help message")
-                        self.set_msg(handler._help_message)
-            return self._msg
+            return self.format_msg(msg)
         else:
             return self.pass_to_next(msg) 
+
+    def format_msg(self, msg: MsgObject):
+        help_type_msg = self.find_help_field(msg.body.lower())
+        if help_type_msg == self._handler_name:
+            self.format_general_message()
+        else:
+            self.format_other_help_message(help_type_msg)
+        return self._msg
+        
+    def find_help_field(self, body):
+        space_index = body.find(" ")
+        if is_short_message(space_index):
+            return body
+        return body[space_index+1:]
+
+    def format_general_message(self):
+        print("...general help message")
+        self.make_general_help_message()
+        self.set_msg(self._help_message)
+
+    def format_other_help_message(self, formated_msg):
+        print("...not general help message")
+        for handler in self.msg_handlers:
+            if formated_msg == handler._handler_name:
+                print(f"{handler._handler_name}... help message")
+                self.set_msg(handler._help_message)
 
     def verify_gatling(self, body):
         if self.first_word_is_help(body):
@@ -85,11 +96,7 @@ class HelpVerifier(MsgHandler):
         space_index = body.find(" ")
         return body[space_index:].strip()
 
-    def format_msg(self, body: str):
-        space_index = body.find(" ")
-        if is_short_message(space_index):
-            return body
-        return body[space_index+1:]
+
 
 class ComplimentVerifier(MsgHandler):
     get_all_kids_verifier = GetAllKidsVerifier()
