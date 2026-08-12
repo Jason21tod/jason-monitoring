@@ -17,6 +17,8 @@ cada criança no hotel.
 Fui desenvolvido no período em que meu criador trabalhava no Clara Resorts. Caso queira saber mais sobre o trabalho dele, acesse:
 
 https://www.jasonuniverse.com.br
+
+Caso queira sabe oque eu faço, digite *"help"*.
 """
 
 
