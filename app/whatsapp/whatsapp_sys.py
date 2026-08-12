@@ -1,5 +1,5 @@
 from twilio.rest import Client
-from app.api.msg import MsgObject
+from app.api.msg_objects import MsgObject
 import os
 import logging
 

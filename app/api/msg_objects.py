@@ -21,7 +21,6 @@ class MsgObject:
 
 
 class MsgHandler(ABC):
-
     msg_handlers: list = []
     _msg = "This is a Placeholder msg - should be configured"
     _handler_name = "Abstract Handler name"
@@ -37,17 +36,13 @@ class MsgHandler(ABC):
         self._msg = msg
 
     @abstractmethod
-    def receive_message(self, msg: MsgObject):
+    def respond_message(self, msg: MsgObject):
         pass
 
     @abstractmethod
     def format_msg(self):
         pass
-    
+
+    @abstractmethod
     def pass_to_next(self, msg: MsgObject):
-        if len(self.msg_handlers) == 0:
-            print("Could not send a message -> Unknow command or content")
-            return self._not_processed_msg
-        else:
-            for handler in self.msg_handlers:
-                return handler.receive_message(msg)
+        pass

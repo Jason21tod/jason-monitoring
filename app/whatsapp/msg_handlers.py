@@ -1,4 +1,4 @@
-from app.api.msg import MsgHandler, MsgObject
+from app.api.msg_objects import MsgHandler, MsgObject
 from app.database.database import Session, engine, get_kids
 
 
@@ -8,13 +8,39 @@ def is_short_message(space_index: int):
         return True
     return False
 
+class GetFormVerifier(MsgHandler):
+    _handler_name = "formulario"
+    _help_message = f"*{_handler_name}* -> Use este comando par obter o link do formulário de cadastro."
+    _brief_desc = f"Link para o formulário de cadastro"
+
+    def respond_message(self, msg: MsgObject):
+        if self.verify_gatling(msg.body.lower().strip()):
+            self.format_msg()
+            return self._msg
+        else:
+            return self.pass_to_next(msg)
+
+# Fix this later
+    def verify_gatling(self, body: str):
+        print(self._handler_name)
+        print(body == "formulario" or body == "formulário")
+        if body == self._handler_name or body == "formulário":
+            return True
+        return False
+
+    def format_msg(self):
+        self.set_msg("Acesse a demo do formulário de cadastro! Acesse o link abaixo e cadastre seu(ua) pequeno(a) \n\nhttps://www.jasonuniverse.com.br/jason-monitoring-demo.html")
+
+    def pass_to_next(self, msg: MsgObject):
+        pass
+
 
 class GetAllKidsVerifier(MsgHandler):
     _handler_name = "lista geral"
     _help_message = f"*{_handler_name}* -> Usado para obter a lista de todas as crianças. \n\n A ordem dos dados é: \n\n Nome da criança | Número do quarto | Pais/responsáveis"
     _brief_desc = "Exibe a lista de todos as crianças."
 
-    def receive_message(self, msg: MsgObject):
+    def respond_message(self, msg: MsgObject):
         if self.verify_gatling(msg.body.lower()):
             print("Getting all the data from kids...")
             self.format_msg()
@@ -35,13 +61,18 @@ class GetAllKidsVerifier(MsgHandler):
             return True
         return False
 
+    def pass_to_next(self, msg: MsgObject):
+        return
+
+get_all_kids_verifier = GetAllKidsVerifier()
+get_form_verifier = GetFormVerifier()
+
 class HelpVerifier(MsgHandler):
-    get_all_kids_verifier = GetAllKidsVerifier()
-    msg_handlers: list[MsgHandler] = [get_all_kids_verifier]
+    msg_handlers: list[MsgHandler] = [get_all_kids_verifier, get_form_verifier]
     _handler_name = "help"
     _help_message = "Claro! eu lhe mostrarei os comandos! Dica extra: Você pode usar _help nome do comando_ para saber mais sobre ele\n\n"
 
-    def receive_message(self, msg: MsgObject):
+    def respond_message(self, msg: MsgObject):
         if self.verify_gatling(msg.body.lower()):
             print("A help message received!")
             return self.format_msg(msg)
@@ -80,9 +111,9 @@ class HelpVerifier(MsgHandler):
         return False
 
     def make_general_help_message(self):
-        _help_message = "Claro! eu lhe mostrarei os comandos! Dica extra: Você pode usar help <Nome do comando> para saber mais sobre ele\n\n"
+        self._help_message = "Claro! eu lhe mostrarei os comandos! Dica extra: Você pode usar help <Nome do comando> para saber mais sobre ele\n\n"
         for handler in self.msg_handlers:
-            self._help_message += f"*{handler._handler_name}* -> {handler._brief_desc}"
+            self._help_message += f"*{handler._handler_name}* -> {handler._brief_desc}\n"
     
     def first_word_is_help(self, body):
         space_index = body.find(" ")
@@ -96,22 +127,32 @@ class HelpVerifier(MsgHandler):
         space_index = body.find(" ")
         return body[space_index:].strip()
 
+    def pass_to_next(self, msg: MsgObject):
+        return
 
 
 class ComplimentVerifier(MsgHandler):
-    get_all_kids_verifier = GetAllKidsVerifier()
     help_verifier = HelpVerifier()
-    msg_handlers: list= [help_verifier, get_all_kids_verifier]
+    msg_handlers: list[MsgHandler]= [help_verifier, get_all_kids_verifier, get_form_verifier]
     __compliment_list = ["oi", "olá", "hello"]
     _msg = ""
 
-    def receive_message(self, msg: MsgObject):
+    def respond_message(self, msg: MsgObject):
         if self.verify_gatling(msg.body.lower()):
             print("hit the greetings message... processing")
             self.set_msg(f"Olá {msg.name}! Precisa de ajuda? Digite *Help* e eu lhe mostro oque sei fazer por enquanto!")
             return self._msg
         else:
-            return self.pass_to_next(msg)
+            return self.iterate_trough_handlers(msg)    
+            
+    def iterate_trough_handlers(self, msg: MsgObject):
+        for handler in self.msg_handlers:
+            handler_msg = handler.respond_message(msg)
+            if handler_msg != None:
+                return handler_msg
+            if handler_msg == None:
+                continue
+        return self._not_processed_msg
 
     def verify_gatling(self, body: str):
         formated_body = self.format_msg(body)
@@ -128,3 +169,5 @@ class ComplimentVerifier(MsgHandler):
             return body
         return body[0:space_index]
 
+    def pass_to_next(self, msg: MsgObject):
+        return super().pass_to_next(msg)
