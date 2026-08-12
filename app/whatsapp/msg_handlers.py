@@ -9,10 +9,10 @@ and maybe split it
 
 DESCRIPTION_MESSAGE = """
 Sou Jason, um assistênte de monitoria criado por Gian Pereira!
+
+Você está falando com uma versão demo da minha aplicação, sou muito mais doque os olhos podem ver. \U0001F4BB
                 
-Fui criado com o propósito de ajudar equipes de recreação a ordenar,
-monitorar e listar crianças, bem como ajudar a localizar cada criança que requeira mais atenção
-cada criança no hotel.
+Fui criado com o propósito de ajudar equipes de recreação a ordenar, monitorar e listar crianças, bem como ajudar a localizar cada criança que requeira mais atenção.
 
 Fui desenvolvido no período em que meu criador trabalhava no Clara Resorts. Caso queira saber mais sobre o trabalho dele, acesse:
 
