@@ -31,7 +31,7 @@ def is_short_message(space_index: int):
 class GetWhoYouAre(MsgHandler):
     _handler_name = "quem é você?"
     _brief_desc = """Uma breve descrição de quem sou e quem me criou!"""
-    gatlings = ["quem é você?", "quem e voce", "quem "] 
+    gatlings = ["quem é você?", "quem e voce", "quem é vc?", "quem e vc?", "quem e vc"] 
 
     def respond_message(self, msg: MsgObject):
         if self.verify_gatling(msg.body.lower().strip()):
@@ -41,13 +41,10 @@ class GetWhoYouAre(MsgHandler):
             return self.pass_to_next(msg)
 
     def verify_gatling(self, body: str):
-        verify_regex = re.sub(r"\b\w+é\w+você\b", "e", body)
-        print(verify_regex)
-        for gatling in self.gatlings:
-            if body == gatling:
-                return True
-            else:
-                continue
+        pattern = r"quem [ée] (vc|voc[e-ê])(\??)"
+        verify_regex = re.search(pattern, body)
+        if verify_regex:
+            return True
         return False
 
     def format_msg(self):
