@@ -19,6 +19,7 @@ def make_a_kids_table_object(form: FormData):
         kid = KidsTable(
             id = uuid,
             name= str(form.get("name")),
+            age= int(form.get("age")),
             parent = str(form.get("parent")),
             room = formated_room_type,
             checkin= form.get("checkin"),
@@ -36,6 +37,7 @@ def make_mock_kids_table_object():
     kid = KidsTable(
         id=uuid,
         name="test",
+        age= 8,
         parent = "test parent",
         room = 1,
         checkin=datetime.datetime.now(),

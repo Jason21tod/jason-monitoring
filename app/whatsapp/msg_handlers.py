@@ -28,7 +28,7 @@ def is_short_message(space_index: int):
     return False
 
 
-class GetWhoYouAre(MsgHandler):
+class WhoYouAreGetter(MsgHandler):
     _handler_name = "quem é você?"
     _brief_desc = """Uma breve descrição de quem sou e quem me criou!"""
     gatlings = ["quem é você?", "quem e voce", "quem é vc?", "quem e vc?", "quem e vc"] 
@@ -41,7 +41,7 @@ class GetWhoYouAre(MsgHandler):
             return self.pass_to_next(msg)
 
     def verify_gatling(self, body: str):
-        pattern = r"quem [ée] (vc|voc[e-ê])(\??)"
+        pattern = r"[Qq]uem [ée] (vc|voc[e-ê])(\??)"
         verify_regex = re.search(pattern, body)
         if verify_regex:
             return True
@@ -53,6 +53,7 @@ class GetWhoYouAre(MsgHandler):
     def pass_to_next(self, msg: MsgObject):
         return 
 
+# This class will be use on other pourposes
 class GetAllKidsVerifier(MsgHandler):
     _handler_name = "lista geral"
     _help_message = f"*{_handler_name}* -> Usado para obter a lista de todas as crianças. \n\n A ordem dos dados é: \n\n Nome da criança | Número do quarto | Pais/responsáveis"
@@ -82,7 +83,7 @@ class GetAllKidsVerifier(MsgHandler):
     def pass_to_next(self, msg: MsgObject):
         return
 
-class GetFormVerifier(MsgHandler):
+class FormGetter(MsgHandler):
     _handler_name = "formulario"
     _help_message = f"*{_handler_name}* -> Use este comando par obter o link do formulário de cadastro."
     _brief_desc = f"Link para o formulário de cadastro"
@@ -105,11 +106,46 @@ class GetFormVerifier(MsgHandler):
     def pass_to_next(self, msg: MsgObject):
         pass
 
-get_all_kids_verifier = GetAllKidsVerifier()
-get_form_verifier = GetFormVerifier()
-get_who_you_are = GetWhoYouAre()
+class KidsListGetter(MsgHandler):
+    kids_sector_names = {
+        'clubinho': 'little_club',
+        'kids club': 'kids_club',
+        'clube': 'club'
+    }
 
-class HelpVerifier(MsgHandler):
+    def respond_message(self, msg: MsgObject):
+        msg_body = msg.body.lower()
+        if self.verify_gatling(msg_body):
+            self.format_msg(msg_body)
+        else:
+            print("not list")
+
+    def verify_gatling(self, body: str):
+        space_index =  body.find(" ")
+        if not is_short_message(space_index) and body[0:space_index] == "lista":
+            return True
+        return False
+
+    def set_msg(self, msg: str):
+        pass
+
+    def format_msg(self, msg_body):
+        sector = self.find_sector_type(msg_body)
+
+    def find_sector_type(self, msg_body: str):
+        space_index = msg_body.find(" ")
+        sector = msg_body[space_index:]
+
+    def pass_to_next(self, msg: MsgObject):
+        pass
+
+
+get_kids_list = KidsListGetter()
+get_all_kids_verifier = GetAllKidsVerifier()
+get_form_verifier = FormGetter()
+get_who_you_are = WhoYouAreGetter()
+
+class HelpGetter(MsgHandler):
     msg_handlers: list[MsgHandler] = [get_all_kids_verifier, get_form_verifier, get_who_you_are]
     _handler_name = "help"
     _help_message = "Claro! eu lhe mostrarei os comandos! Dica extra: Você pode usar _help nome do comando_ para saber mais sobre ele\n\n"
@@ -173,9 +209,12 @@ class HelpVerifier(MsgHandler):
         return
 
 
-class ComplimentVerifier(MsgHandler):
-    help_verifier = HelpVerifier()
-    msg_handlers: list[MsgHandler]= [help_verifier, get_all_kids_verifier, get_form_verifier, get_who_you_are]
+class ComplimentGetter(MsgHandler):
+    help_verifier = HelpGetter()
+    msg_handlers: list[MsgHandler]= [
+            help_verifier, get_all_kids_verifier, get_form_verifier,
+            get_who_you_are, get_kids_list
+        ]
     __compliment_list = ["oi", "olá", "hello"]
     _msg = ""
 

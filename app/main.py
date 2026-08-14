@@ -8,7 +8,7 @@ from starlette.datastructures import FormData
 
 from .api.msg_objects import MsgObject, MsgData
 from .whatsapp.whatsapp_sys import send_test_message, send_message
-from .whatsapp.msg_handlers import ComplimentVerifier
+from .whatsapp.msg_handlers import ComplimentGetter
 from .api.api_authentication import TwilioAuthenticator, DatabaseGateKeeper
 from .database.database import engine
 from .utils import make_a_kids_table_object, make_mock_kids_table_object
@@ -84,7 +84,7 @@ def make_msg_data(data: FormData):
         )
 
 def make_response_msg_by_received_msg(data: FormData, received_message: MsgData):
-    first_receiver = ComplimentVerifier()
+    first_receiver = ComplimentGetter()
     new_received_msg = MsgObject(received_message)
     message_body = first_receiver.respond_message(new_received_msg)
     return MsgData (
