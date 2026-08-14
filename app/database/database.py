@@ -39,3 +39,7 @@ def get_kids(session: Session):
     statement = select(KidsTable)
     return session.exec(statement)
 
+def get_kids_by_age(session: Session, min_age: int, max_age):
+    stmt = select(KidsTable).where(KidsTable.age.between(min_age, max_age))
+    return session.exec(stmt)
+

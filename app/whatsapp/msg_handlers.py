@@ -1,5 +1,5 @@
 from app.api.msg_objects import MsgHandler, MsgObject
-from app.database.database import Session, engine, get_kids
+from app.database.database import Session, engine, get_kids, get_kids_by_age
 import re
 
 """The order of the classes here are inverted on pupose.
@@ -112,11 +112,17 @@ class KidsListGetter(MsgHandler):
         'kids club': 'kids_club',
         'clube': 'club'
     }
+    sector_age_range = {
+        'little_club': (range(3, 6)),
+        'kids_club': (range(6, 9)),
+        'club': (range(9, 14))
+    }
 
     def respond_message(self, msg: MsgObject):
         msg_body = msg.body.lower()
         if self.verify_gatling(msg_body):
             self.format_msg(msg_body)
+            return self._msg
         else:
             print("not list")
 
@@ -126,15 +132,26 @@ class KidsListGetter(MsgHandler):
             return True
         return False
 
-    def set_msg(self, msg: str):
-        pass
-
     def format_msg(self, msg_body):
-        sector = self.find_sector_type(msg_body)
+        raw_sector_name = self.find_sector_name(msg_body)
+        sector = self.kids_sector_names[raw_sector_name]
+        current_age_range = self.sector_age_range[sector]
+        msg = f"Lista das crianças do {raw_sector_name}! ({current_age_range[0]}-{current_age_range[-1]})\n\n"
+        with Session(engine) as session:
+            kids = get_kids_by_age(session, current_age_range.start, current_age_range.stop).all()
+            if len(kids) == 0:
+                self.set_msg("Não há crianças nessa faixa etária!")
+                return
+            else:
+                for kid in kids:
+                    msg += f"{kid.name} {kid.room} {kid.parent} \n"
+                self.set_msg(msg)
+                return 
 
-    def find_sector_type(self, msg_body: str):
+    def find_sector_name(self, msg_body: str):
         space_index = msg_body.find(" ")
-        sector = msg_body[space_index:]
+        sector = msg_body[space_index+1:]
+        return sector
 
     def pass_to_next(self, msg: MsgObject):
         pass
