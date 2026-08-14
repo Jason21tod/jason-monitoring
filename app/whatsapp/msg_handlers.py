@@ -85,7 +85,7 @@ class GetAllKidsVerifier(MsgHandler):
 
 class FormGetter(MsgHandler):
     _handler_name = "formulario"
-    _help_message = f"*{_handler_name}* -> Use este comando par obter o link do formulário de cadastro."
+    _help_message = f"*{_handler_name}* -> Use este comando para obter o link do formulário de cadastro."
     _brief_desc = f"Link para o formulário de cadastro"
 
     def respond_message(self, msg: MsgObject):
@@ -107,6 +107,10 @@ class FormGetter(MsgHandler):
         pass
 
 class KidsListGetter(MsgHandler):
+    _handler_name = "lista"
+    _help_message = f"*{_handler_name} <setor>* -> Use este comando para obter a lista de um dos 3 setores: clubinho (3 a 5 anos), kids club (6 a 8 anos) e clube (9 a 12 anos)."
+    _brief_desc = f"Comando para obter a lista dos setores"
+
     kids_sector_names = {
         'clubinho': 'little_club',
         'kids club': 'kids_club',
@@ -163,7 +167,9 @@ get_form_verifier = FormGetter()
 get_who_you_are = WhoYouAreGetter()
 
 class HelpGetter(MsgHandler):
-    msg_handlers: list[MsgHandler] = [get_all_kids_verifier, get_form_verifier, get_who_you_are]
+    msg_handlers: list[MsgHandler] = [
+        get_all_kids_verifier, get_form_verifier, 
+        get_who_you_are, get_kids_list]
     _handler_name = "help"
     _help_message = "Claro! eu lhe mostrarei os comandos! Dica extra: Você pode usar _help nome do comando_ para saber mais sobre ele\n\n"
 
