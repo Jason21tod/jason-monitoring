@@ -2,6 +2,7 @@ import logging
 
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 from starlette.datastructures import FormData
 
@@ -15,12 +16,25 @@ from .utils import make_a_kids_table_object, make_mock_kids_table_object
 
 app = FastAPI(title="Jason Monitoring System")
 
+origins = [
+    "http://127.0.0.1:5500"
+]
+
+app.add_middleware(
+CORSMiddleware,
+    allow_origins=origins, # Specific origins
+    allow_credentials=True, # Allow cookies/auth headers
+    allow_methods=["*"], # Allow all HTTP methods
+    allow_headers=["*"], # Allow all headers
+)
+
 logging.basicConfig(
     level=logging.INFO,
     format=" %(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 main_logger = logging.getLogger("Maid (Main Logger)")
+
 
 
 @app.get("/")
@@ -37,7 +51,8 @@ async def get_kids(
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
     main_logger.info("Added new kid...")
-    form = await request.form()
+    form = await request.json()
+    print(form)
     kid = make_a_kids_table_object(form)
 
     with Session(engine) as session:
