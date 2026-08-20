@@ -117,7 +117,7 @@ class KidsListGetter(MsgHandler):
         'clube': 'club'
     }
     sector_age_range = {
-        'little_club': (range(3, 6)),
+        'little_club': (range(3, 5)),
         'kids_club': (range(6, 9)),
         'club': (range(9, 14))
     }
