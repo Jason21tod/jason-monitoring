@@ -119,7 +119,7 @@ class KidsListGetter(MsgHandler):
     sector_age_range = {
         'little_club': (range(3, 5)),
         'kids_club': (range(6, 9)),
-        'club': (range(9, 14))
+        'club': (range(9, 13))
     }
 
     def respond_message(self, msg: MsgObject):
