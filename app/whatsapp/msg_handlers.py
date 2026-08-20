@@ -141,6 +141,7 @@ class KidsListGetter(MsgHandler):
         sector = self.kids_sector_names[raw_sector_name]
         current_age_range = self.sector_age_range[sector]
         msg = f"Lista das crianças do {raw_sector_name}! ({current_age_range.start}-{current_age_range.stop})\n\n"
+        self.set_msg(msg)
         with Session(engine) as session:
             kids = get_kids_by_age(session, current_age_range.start, current_age_range.stop).all()
             if len(kids) == 0:
