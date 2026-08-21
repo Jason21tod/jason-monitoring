@@ -17,7 +17,9 @@ from .utils import make_a_kids_table_object, make_mock_kids_table_object
 app = FastAPI(title="Jason Monitoring System")
 
 origins = [
-    "http://127.0.0.1:5500"
+    "http://127.0.0.1:5500",
+    "https://jason-portfolio-frontend.vercel.app/",
+    "https://www.jasonuniverse.com.br"
 ]
 
 app.add_middleware(
