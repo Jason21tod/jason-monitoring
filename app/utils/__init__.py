@@ -1,36 +1,57 @@
 import datetime
+from datetime import datetime
+from fastapi.responses import Response
 
-from starlette.datastructures import FormData
 from uuid import uuid4
 
 from ..database.database import KidsTable
 
 
 
-def make_a_kids_table_object(form: FormData):
-    def format_room_type(form):
-        try:
-            return int(form.get("room"))
-        except:
-            raise TypeError("Room type its not a integer or integer convertable")
+def make_a_kids_table_object(data):
     try:
         uuid = uuid4()
-        formated_room_type = format_room_type(form)
-        kid = KidsTable(
-            id = uuid,
-            name= str(form.get("name")),
-            age= int(form.get("age")),
-            parent = str(form.get("parent")),
-            room = formated_room_type,
-            checkin= form.get("checkin"),
-            checkout= form.get("checkout"),
-            can_pay= bool(form.get("can_pay")),
-            can_swin= bool(form.get("can_swin")),
-            notations= str(form.get("notations"))
-        )
-        return kid
+        formated_room_type = format_room_type(data)
+        formated_checkin = format_date_type(data.get("checkin"))
+        formated_checkout = format_date_type(data.get("checkout"))
+        if is_checkin_early_than_checkout(formated_checkin, formated_checkout):
+            kid = KidsTable(
+                id = uuid,
+                name= str(data.get("name")),
+                age= int(data.get("age")),
+                parent = str(data.get("parent")),
+                room = formated_room_type,
+                checkin= formated_checkin,
+                checkout= formated_checkout,
+                can_pay= bool(data.get("can_pay")),
+                can_swin= bool(data.get("can_swin")),
+                notations= str(data.get("notations"))
+            )
+            return kid
+        else:
+            print(f"ERROR - The checkin and checkout are not cohese - {formated_checkin} X {formated_checkout}")
+            return Response(f"The checkin and checkout are not cohese - {formated_checkin} X {formated_checkout}", 404)
     except:
-        raise TypeError("The object its not a valid format")
+        print(f" ERROR - The object its not a valid format")
+        return Response(f"The object its not a valid format")
+
+def format_room_type(form):
+    try:
+        return int(form.get("room"))
+    except:
+        raise TypeError("Room type its not a integer or integer convertable")
+
+def is_checkin_early_than_checkout(checkin: datetime, checkout: datetime):
+    if checkout > checkin:
+        print("all date's okay")
+        return True
+    return False
+
+def format_date_type(date_str):
+    try:
+        return datetime.fromisoformat(date_str)
+    except:
+        raise TypeError(f"One of the dates could not be converted to Datetime objects - {date_str}")
 
 def make_mock_kids_table_object():
     uuid = uuid4()

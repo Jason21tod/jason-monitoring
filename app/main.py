@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session
 from starlette.datastructures import FormData
@@ -52,11 +52,16 @@ async def get_kids(
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
+    # Refactor this endpoint later
     main_logger.info("Added new kid...")
-    form = await request.json()
-    print(form)
-    kid = make_a_kids_table_object(form)
+    try:
+        data = await request.json()
+    except:
+        return Response("Error, could not process the solicitation", 404)
 
+    kid = make_a_kids_table_object(data)
+    if type(kid) == Response:
+        return kid
     with Session(engine) as session:
         session.add(kid)
         session.commit()
