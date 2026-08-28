@@ -18,7 +18,7 @@ DB_URL = str(os.environ.get("DATABASE_URL"))
 class KidsTable(SQLModel, table=True):
     id: uuid.UUID = Field(default=None, primary_key=True)
     name: str
-    age: int = Field(default= 1)
+    age: int = Field(default= 3)
     parent: str
     room: int
     checkin: datetime

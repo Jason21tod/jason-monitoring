@@ -15,22 +15,26 @@ def make_a_kids_table_object(data):
         formated_checkin = format_date_type(data.get("checkin"))
         formated_checkout = format_date_type(data.get("checkout"))
         if is_checkin_early_than_checkout(formated_checkin, formated_checkout):
-            kid = KidsTable(
-                id = uuid,
-                name= str(data.get("name")),
-                age= int(data.get("age")),
-                parent = str(data.get("parent")),
-                room = formated_room_type,
-                checkin= formated_checkin,
-                checkout= formated_checkout,
-                can_pay= bool(data.get("can_pay")),
-                can_swin= bool(data.get("can_swin")),
-                notations= str(data.get("notations"))
-            )
-            return kid
+            if is_the_correct_age_range(int(data.get("age"))):
+                kid = KidsTable(
+                    id = uuid,
+                    name= str(data.get("name")),
+                    age= int(data.get("age")),
+                    parent = str(data.get("parent")),
+                    room = formated_room_type,
+                    checkin= formated_checkin,
+                    checkout= formated_checkout,
+                    can_pay= bool(data.get("can_pay")),
+                    can_swin= bool(data.get("can_swin")),
+                    notations= str(data.get("notations"))
+                )
+                return kid
+            else:
+                print(f"ERROR - The age range isn't correct -> {data.get("age")}")
+                return Response(f"The age range isn't correct -> {data.get("age")}", 401)
         else:
             print(f"ERROR - The checkin and checkout are not cohese - {formated_checkin} X {formated_checkout}")
-            return Response(f"The checkin and checkout are not cohese - {formated_checkin} X {formated_checkout}", 404)
+            return Response(f"The checkin and checkout are not cohese - {formated_checkin} X {formated_checkout}", 401)
     except:
         print(f" ERROR - The object its not a valid format")
         return Response(f"The object its not a valid format")
@@ -46,6 +50,11 @@ def is_checkin_early_than_checkout(checkin: datetime, checkout: datetime):
         print("all date's okay")
         return True
     return False
+
+def is_the_correct_age_range(age: int):
+    if age < 3 or age > 13:
+        return False
+    return True
 
 def format_date_type(date_str):
     try:

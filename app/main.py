@@ -86,7 +86,7 @@ async def msg(request: Request, _:None = Depends(TwilioAuthenticator.verify_cred
         data = await request.form()
     except:
         main_logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
-        return 400
+        return 401
     response_msg_object = create_response(data)
     main_logger.info("message responsed!")
     return send_message(msg_object=response_msg_object)
