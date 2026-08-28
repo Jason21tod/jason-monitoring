@@ -25,7 +25,7 @@ class KidsTable(SQLModel, table=True):
     checkout: datetime
     notations: str
     can_swin: bool
-    can_pay: bool
+    can_pay: bool = Field(default= True)
 
 
 engine = create_engine(DB_URL, echo=True)
