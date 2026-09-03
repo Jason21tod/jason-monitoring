@@ -34,6 +34,26 @@ def send_test_message(name: str, customer_number: str):
     return "400"
 
 def send_message(msg_object: MsgObject):
+    print(msg_object.body)
+    line = 0
+    char_count = 0
+    for char in msg_object.body:
+        char_count += 1
+        if char == "\n":
+            line += 1
+            if char_count >= 1500:
+                twilio_client.messages.create(
+                                from_=msg_object.to,
+                                body= msg_object.body[0:char_count],
+                                to= msg_object._from
+                            )
+                twilio_client.messages.create(
+                                from_=msg_object.to,
+                                body= msg_object.body[char_count:],
+                                to= msg_object._from
+                            )
+                return 200
+                         
     if msg_object._from != "None":
         message = twilio_client.messages.create(
                 from_=msg_object.to,
