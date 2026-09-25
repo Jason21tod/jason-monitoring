@@ -41,7 +41,7 @@ class MsgHandler(ABC):
         pass
 
     def set_msg(self, msg:str):
-        """This method only could be chaged if you need a special way to set message"""
+        """This method only could be changed if you need a special way to set message"""
         self._msg = msg
 
     @abstractmethod

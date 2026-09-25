@@ -3,16 +3,15 @@ import logging
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import Session
 from starlette.datastructures import FormData
 
 
 from .api.msg_objects import MsgObject, MsgData
-from .whatsapp.whatsapp_sys import send_test_message, send_message
+from .whatsapp.whatsapp_sys import send_message
 from .whatsapp.msg_handlers import ComplimentGetter
 from .api.api_authentication import TwilioAuthenticator, DatabaseGateKeeper
-from .database.database import engine
-from .utils import make_a_kids_table_object, make_mock_kids_table_object
+from .database.database import add_new_kid
+from .utils import make_a_kids_table_object
 
 app = FastAPI(title="Jason Monitoring System")
 
@@ -47,49 +46,38 @@ def home():
 async def get_kids(
         _: None = Depends(DatabaseGateKeeper.verify_secret)
     ):
-    
+
     return {"status": "Done"}
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
-    # Refactor this endpoint later
-    main_logger.info("Added new kid...")
+    main_logger.info("Adding new kid...")
     try:
-        data = await request.json()
+        await add_kid_by_request(request)
+        # Change the way that url are made after that prototype
+        return RedirectResponse(url="https://www.jasonuniverse.com.br/jason-monitoring-demo.html", status_code= 303)
     except:
         return Response("Error, could not process the solicitation", 404)
 
+async def add_kid_by_request(request: Request):
+    data = await request.json()
     kid = make_a_kids_table_object(data)
     if type(kid) == Response:
         return kid
-    with Session(engine) as session:
-        session.add(kid)
-        session.commit()
-
-    # Change the way that url are made after that prototype
+    add_new_kid(kid)
     main_logger.info("Added New Kid!")
-    return RedirectResponse(url="https://www.jasonuniverse.com.br/jason-monitoring-demo.html", status_code= 303)
-
-@app.get("/add_test")
-def add():
-    with Session(engine) as session:
-        kid = make_mock_kids_table_object()
-        session.add(kid)
-        session.commit()
-
-    return 200
 
 @app.post("/msg")
 async def msg(request: Request, _:None = Depends(TwilioAuthenticator.verify_credentials)):
     main_logger.info("new message received")
     try:
         data = await request.form()
+        response_msg_object = create_response(data)
+        main_logger.info("message responsed!")
+        return send_message(msg_object=response_msg_object)
     except:
         main_logger.warning("ERROR ON RECEIVENG MSG REQUEST ON MSG ENDPOINT - the request isn't a valid message")
         return 401
-    response_msg_object = create_response(data)
-    main_logger.info("message responsed!")
-    return send_message(msg_object=response_msg_object)
 
 def create_response(data: FormData):
     received_message = make_msg_data(data)
@@ -116,16 +104,3 @@ def make_response_msg_by_received_msg(data: FormData, received_message: MsgData)
             str(data.get("From")),
             str(data.get("SmsStatus"))
         )
-
-@app.post("/test_msg")
-async def test_msg(request: Request):
-    data = await request.form()
-
-    customer_number = str(data.get("From"))
-    name = data.get("ProfileName")
-
-    if (type(name)) == str:
-        send_test_message(name, customer_number)
-        return {"status": 200}
-    
-    return {"status": 400}

@@ -47,7 +47,6 @@ def format_room_type(form):
 
 def is_checkin_early_than_checkout(checkin: datetime, checkout: datetime):
     if checkout > checkin:
-        print("all date's okay")
         return True
     return False
 
