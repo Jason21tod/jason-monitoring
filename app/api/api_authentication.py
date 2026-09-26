@@ -6,7 +6,7 @@ from twilio.request_validator import RequestValidator
 SECRET = os.environ.get("JASON_API_TOKEN")
 TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
-
+JASON_WATCHER_KEY = os.environ.get("JASON_WATCHER_KEY")
 
 class TwilioAuthenticator:
     @classmethod
@@ -46,7 +46,6 @@ class TwilioAuthenticator:
     def verify_account_sid(cls, account_sid):
         if account_sid != TWILIO_ACCOUNT_SID:
             raise HTTPException(401, "Invalid SID Data")
-
 
 class DatabaseGateKeeper:
     @classmethod

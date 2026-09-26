@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 from sqlmodel import Field, SQLModel, create_engine, Session, select
+from app.email import report_error_by_email
 
 
 logging.basicConfig(
@@ -14,6 +15,8 @@ logging.basicConfig(
 database_logger = logging.getLogger("james_bond (database watcher)")
 
 DB_URL = str(os.environ.get("DATABASE_URL"))
+
+engine = create_engine(DB_URL, echo=True)
 
 class KidsTable(SQLModel, table=True):
     id: uuid.UUID = Field(default=None, primary_key=True)
@@ -28,10 +31,10 @@ class KidsTable(SQLModel, table=True):
     can_pay: bool = Field(default= True)
 
 
-engine = create_engine(DB_URL, echo=True)
 try:
     SQLModel.metadata.create_all(engine)
 except:
+    report_error_by_email("Error on creating tables", "A error on creating tables has been ocurred, verify the Database availability")
     database_logger.warning("Error on creating tables")
 
 

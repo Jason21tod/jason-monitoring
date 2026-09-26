@@ -1,5 +1,8 @@
 from twilio.rest import Client
+
 from app.api.msg_objects import MsgObject
+from app.email import report_error_by_email
+
 import os
 import logging
 
@@ -44,13 +47,16 @@ class MessageSender:
         self.create_response(second_body)
 
     def create_response(self, body):
-        print(f"response -> {body}")
-        print(twilio_client.messages.create(
-                    from_=self.msg_object.to,
-                    body= body,
-                    to= self.msg_object._from
-                ).status)
-
+        try:
+            print(f"response -> {body}")
+            print(twilio_client.messages.create(
+                        from_=self.msg_object.to,
+                        body= body,
+                        to= self.msg_object._from
+                    ).status)
+        except:
+            whatsapp_logger.warning("Could not create a message, verify WhatsApp API availability or the message content")
+            report_error_by_email("Error on whatsapp send", f"Could not send message from that bot number {self.msg_object.to} with that body: {body}")
 
 
 def send_test_message(name: str, customer_number: str):
@@ -72,7 +78,8 @@ def send_message(msg_object: MsgObject):
 
 def send_messages(msg_object: MsgObject):
     message_sender = MessageSender(msg_object)
-    verify_multiple_messages(message_sender)
+    if verify_multiple_messages(message_sender):
+        return 200
     message_sender.create_response(msg_object.body)
     return 200
 

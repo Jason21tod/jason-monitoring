@@ -1,10 +1,10 @@
 import logging
+import os
 
 from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.datastructures import FormData
-
 
 from .api.msg_objects import MsgObject, MsgData
 from .whatsapp.whatsapp_sys import send_message
@@ -14,6 +14,7 @@ from .database.database import add_new_kid
 from .utils import make_a_kids_table_object
 
 app = FastAPI(title="Jason Monitoring System")
+
 
 origins = [
     "http://127.0.0.1:5500",

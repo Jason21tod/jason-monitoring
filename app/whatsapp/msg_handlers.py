@@ -2,7 +2,7 @@ from app.api.msg_objects import MsgHandler, MsgObject
 from app.database.database import Session, engine, get_kids, get_kids_by_age
 import re
 
-"""The order of the classes here are inverted on pupose.
+"""The order of the classes here are inverted on purpose.
 after made the primary classes, we gonna change the whole system to a new archive
 and maybe split it
 """
