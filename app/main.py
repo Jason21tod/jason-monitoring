@@ -67,7 +67,7 @@ async def governance_task():
                         delete_kid_by_id(kid.id)
             else:
                 main_logger.info("...done!")
-            await asyncio.sleep(60)
+            await asyncio.sleep(600)
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):
