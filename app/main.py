@@ -1,7 +1,9 @@
 import logging
-import os
+import asyncio
 
-from fastapi import FastAPI, Request, Depends
+from datetime import datetime
+
+from fastapi import FastAPI, Request, Depends, BackgroundTasks
 from fastapi.responses import RedirectResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.datastructures import FormData
@@ -9,12 +11,12 @@ from starlette.datastructures import FormData
 from .api.msg_objects import MsgObject, MsgData
 from .whatsapp.whatsapp_sys import send_message
 from .whatsapp.msg_handlers import ComplimentGetter
-from .api.api_authentication import TwilioAuthenticator, DatabaseGateKeeper
-from .database.database import add_new_kid
+from .api.api_authentication import TwilioAuthenticator
+from .database.database import add_new_kid, get_kids, delete_kid_by_id, Session, engine
 from .utils import make_a_kids_table_object
 
 app = FastAPI(title="Jason Monitoring System")
-
+HOUR_LIMIT = 18
 
 origins = [
     "http://127.0.0.1:5500",
@@ -43,12 +45,29 @@ main_logger = logging.getLogger("Maid (Main Logger)")
 def home():
     return {"hello":"world!"}
 
-@app.get("/get_kids")
-async def get_kids(
-        _: None = Depends(DatabaseGateKeeper.verify_secret)
-    ):
+@app.on_event("startup")
+async def on_startup():
+    asyncio.create_task(governance_task())
 
-    return {"status": "Done"}
+async def governance_task():
+    print("Starting governance tasks")
+    with Session(engine) as session:
+        while True:
+            # Fix that corroutine later - i mess
+            main_logger.info("Running governance tasks...")
+            now = datetime.utcnow()
+            datetime_diff = datetime.now()
+            hour_dif = now.hour - datetime_diff.now().hour
+            if now.hour == HOUR_LIMIT+hour_dif:
+                main_logger.info("Excluding some data...")
+                kids = get_kids(session)
+                for kid in kids:
+                    print(kid.checkin.date())
+                    if kid.checkout.date() <= now.date():
+                        delete_kid_by_id(kid.id)
+            else:
+                main_logger.info("...done!")
+            await asyncio.sleep(60)
 
 @app.post("/add_kids")
 async def add_kids_to_db(request: Request):

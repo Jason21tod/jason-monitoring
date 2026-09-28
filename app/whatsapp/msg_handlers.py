@@ -71,6 +71,9 @@ class GetAllKidsVerifier(MsgHandler):
         with Session(engine) as session:
             msg = """Lista de todas as crianças \n\n"""
             kids = get_kids(session)    
+            if len(kids) == 0:
+                self.set_msg("Não há crianças!")
+                return
             for kid in kids:
                 msg = msg + f"{kid.name} - {kid.room} - {kid.parent}\n"
             self.set_msg(msg)

@@ -46,6 +46,15 @@ def get_kids_by_age(session: Session, min_age: int, max_age):
     statement = select(KidsTable).where(KidsTable.age.between(min_age, max_age))
     return session.exec(statement)
 
+def delete_kid_by_id(id):
+    with Session(engine) as session:
+        kid = session.get(KidsTable, id)
+        if kid: 
+            session.delete(kid)
+            session.commit()
+            print(f"Register of ID {id} excluded.")
+        else:
+            print(f"This ID does not exist{id}.")
 def add_new_kid(kid: KidsTable):
     with Session(engine) as session:
         session.add(kid)
