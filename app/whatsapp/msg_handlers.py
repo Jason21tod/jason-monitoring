@@ -104,7 +104,7 @@ class FormGetter(MsgHandler):
         return False
 
     def format_msg(self):
-        self.set_msg("Acesse a demo do formulário de cadastro! Acesse o link abaixo e cadastre seu(ua) pequeno(a) \n\nhttps://www.jasonuniverse.com.br/jason-monitoring-demo.html")
+        self.set_msg("Acesse a demo do formulário de cadastro! Acesse o link abaixo e cadastre seu(ua) pequeno(a) \n\nhttps://www.jasonuniverse.com.br/jason-monitoring-form.html")
 
     def pass_to_next(self, msg: MsgObject):
         pass
