@@ -70,13 +70,16 @@ class GetAllKidsVerifier(MsgHandler):
     def format_msg(self):
         with Session(engine) as session:
             msg = """Lista de todas as crianças \n\n"""
-            kids = get_kids(session)    
-            if len(kids.all()) == 0:
+            kids = get_kids(session).all()
+            if len(kids) < 1:
                 self.set_msg("Não há crianças!")
                 return
-            for kid in kids:
-                msg = msg + f"{kid.name} - {kid.room} - {kid.parent}\n"
-            self.set_msg(msg)
+            else:    
+                for kid in kids:
+                    msg = msg + f"{kid.name} - {kid.room} - {kid.parent}\n"
+                    self.set_msg(msg)
+                return 
+            
 
     def verify_gatling(self, body: str):
         if body == self._handler_name:
